@@ -26,4 +26,5 @@ jobs:
             -H "Accept: application/vnd.github+json" \
             -H "Authorization: Bearer ${{ secrets.REPO_DISPATCH_PAT }}" \
             https://api.github.com/repos/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}/dispatches \
-            -d '{"event_type":"test-type-1","client_payload":{"value1":false,"value2":foobar}}'
+            -d '{"event_type":"test-type-1","client_payload":{"value1":false,"value2":"foobar"}}' \
+            --no-progress-meter --show-error --fail-with-body
