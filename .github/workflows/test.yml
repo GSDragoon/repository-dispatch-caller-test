@@ -42,11 +42,8 @@ jobs:
       - name: 'Wait for Remote Workflow to Complete'
         timeout-minutes: 5
         run: |
-          curl --version
-          jq --version
-
           while true; do
-            echo 'Waiting 15 seconds...''
+            echo 'Waiting 15 seconds...'
             sleep 15
 
             response=$(curl -L \
