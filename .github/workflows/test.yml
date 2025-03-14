@@ -8,13 +8,15 @@ on:
         description: 'The type of event to trigger the remote workflow. (test-type-1 or test-type-2)'
         required: true
         default: 'test-type-1'
+        type: choice
+        options: ['test-type-1', 'test-type-2']
       value1:
         description: 'The first value to send to the remote workflow.'
-        required: false
+        required: true
         default: 'false'
       value2:
         description: 'The second value to send to the remote workflow.'
-        required: false
+        required: true
         default: 'foobar'
 
 permissions:
@@ -45,7 +47,7 @@ jobs:
             -H 'Authorization: Bearer ${{ secrets.REPO_DISPATCH_PAT }}' \
             -H 'X-GitHub-Api-Version: 2022-11-28' \
             https://api.github.com/repos/${{ env.REPO_OWNER }}/${{ env.REPO_NAME }}/dispatches \
-            -d '{"event_type":"${{ inputs.event_type }}","client_payload":{"${{ inputs.value1 }}":,"value2":"${{ inputs.value2 }}"}}' \
+            -d '{"event_type":"${{ inputs.event_type }}","client_payload":{"value1":"${{ inputs.value1 }}":,"value2":"${{ inputs.value2 }}"}}' \
             --no-progress-meter --show-error --fail-with-body \
             -w 'Response Code (204 is expected): %{response_code}\n'
 
