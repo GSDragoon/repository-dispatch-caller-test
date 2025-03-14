@@ -46,8 +46,6 @@ jobs:
         run: |
           echo 'Waiting 30 seconds before polling workflow runs...'
           sleep 30
-          echo '### Remote Workflow Results' >> $GITHUB_STEP_SUMMARY
-          echo '' >> $GITHUB_STEP_SUMMARY
 
           while true; do
             response=$(curl -L \
@@ -81,9 +79,9 @@ jobs:
             echo "Run Started At: ${run_started_at}"
 
             # Set step outputs to display in the GitHub Summary
-            echo "url=${html_url}" > "$GITHUB_OUTPUT"
-            echo "status=${status}" > "$GITHUB_OUTPUT"
-            echo "conclusion=${conclusion}" > "$GITHUB_OUTPUT"
+            echo "url=${html_url}" >> "$GITHUB_OUTPUT"
+            echo "status=${status}" >> "$GITHUB_OUTPUT"
+            echo "conclusion=${conclusion}" >> "$GITHUB_OUTPUT"
 
 
             if [ "${status}" = 'completed' ]; then
