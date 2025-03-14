@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       event_type:
-        description: 'The type of event to trigger the remote workflow. (test-type-1 or test-type-2)'
+        description: 'The type of event to trigger (which remote workflow to run).'
         required: true
         default: 'test-type-1'
         type: choice
