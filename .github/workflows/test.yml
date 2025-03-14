@@ -35,9 +35,9 @@ jobs:
   test-caller:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    #concurrency:
-    #  group: Static
-    #  cancel-in-progress: false
+    concurrency:
+      group: ${{ inputs.event_type }} # only allow one of each type to run at a time
+      cancel-in-progress: false
     steps:
 
       # https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event
