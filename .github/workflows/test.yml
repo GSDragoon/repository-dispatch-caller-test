@@ -27,7 +27,9 @@ permissions:
 env:
   REPO_OWNER: GSDragoon
   REPO_NAME: repository-dispatch-test
-  WORKFLOW_ID: 148897429 # https://api.github.com/repos/GSDragoon/repository-dispatch-test/actions/workflows
+  # https://api.github.com/repos/GSDragoon/repository-dispatch-test/actions/workflows
+  WORKFLOW_1_ID: 149832989 # test-type-1
+  WORKFLOW_2_ID: 149832990 # test-type-2
 
 jobs:
   test-caller:
@@ -58,6 +60,9 @@ jobs:
       - name: Wait for Remote Workflow to Complete
         id: wait-for-remote-workflow
         timeout-minutes: 5
+        env:
+          # Because we are using the same workflow here to simulate from multiple repos
+          WORKFLOW_ID: if (inputs.event_type == 'test-type-1') then ${{ env.WORKFLOW_1_ID }} else ${{ env.WORKFLOW_2_ID }} end
         run: |
           echo 'Waiting 30 seconds before polling workflow runs...'
           sleep 30
