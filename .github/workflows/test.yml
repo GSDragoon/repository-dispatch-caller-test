@@ -24,7 +24,7 @@ jobs:
     steps:
 
       # https://docs.github.com/en/rest/repos/repos#create-a-repository-dispatch-event
-      - name: 'Execute Remote Workflow'
+      - name: Execute Remote Workflow
         run: |
           curl -L \
             -X POST \
@@ -39,11 +39,15 @@ jobs:
       # https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-repository
       # https://github.com/orgs/community/discussions/24918
       # https://api.github.com/repos/GSDragoon/repository-dispatch-test/actions/runs?event=repository_dispatch&actor=GSDragoon&exclude_pull_requests=true
-      - name: 'Wait for Remote Workflow to Complete'
+      # https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks#check-statuses-and-conclusions
+      - name: Wait for Remote Workflow to Complete
+        id: wait-for-remote-workflow
         timeout-minutes: 5
         run: |
           echo 'Waiting 30 seconds before polling workflow runs...'
           sleep 30
+          echo '### Remote Workflow Results' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
 
           while true; do
             response=$(curl -L \
@@ -62,32 +66,66 @@ jobs:
             run_number=$(echo "${latest_run}" | jq -r '.run_number')
             status=$(echo "${latest_run}" | jq -r '.status')
             conclusion=$(echo "${latest_run}" | jq -r '.conclusion')
-            url=$(echo "${latest_run}" | jq -r '.html_url')
             html_url=$(echo "${latest_run}" | jq -r '.html_url')
+            created_at=$(echo "${latest_run}" | jq -r '.created_at')
+            run_attempt=$(echo "${latest_run}" | jq -r '.run_attempt')
+            run_started_at=$(echo "${latest_run}" | jq -r '.run_started_at')
 
             echo "ID: ${id}"
             echo "Run Number: ${run_number}"
             echo "Status: ${status}"
             echo "Conclusion: ${conclusion}"
-            echo "URL: ${url}"
             echo "HTML URL: ${html_url}"
+            echo "Created At: ${created_at}"
+            echo "Run Attempt: ${run_attempt}"
+            echo "Run Started At: ${run_started_at}"
 
-            if [ "${status}" = "completed" ]; then
-              echo 'Remote Workflow Completed.'
-              # TODO: Add output to GitHub Summary
-              # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/workflow-commands-for-github-actions#adding-a-job-summary
+            # Set step outputs to display in the GitHub Summary
+            echo "url=${html_url}" > "$GITHUB_OUTPUT"
+            echo "status=${status}" > "$GITHUB_OUTPUT"
+            echo "conclusion=${conclusion}" > "$GITHUB_OUTPUT"
 
+
+            if [ "${status}" = 'completed' ]; then
               if [ "${conclusion}" = "success" ]; then
-                echo 'Remote Workflow Succeeded.'
+                echo 'Remote Workflow completed successfully.'
                 exit 0
+              else
+                echo 'Remote Workflow completed, but was not successful.'
+                exit 1
               fi
 
-              echo 'Remote Workflow Failed.'
+            elif [ "${status}" = 'failure' ] || [ "${status}" = 'startup_failure' ]; then
+              echo 'Remote Workflow failed.'
               exit 1
             fi
+
             echo 'Remote Workflow Still Running. Waiting 15 seconds to check again...'
             sleep 15
           done
 
-          echo 'Remote Workflow Timed Out.'
-          exit 1
+      - name: Report Remote Workflow Results
+        if: success() || failure()
+        env:
+          URL: ${{ steps.wait-for-remote-workflow.outputs.url }}
+          STATUS: ${{ steps.wait-for-remote-workflow.outputs.status }}
+          CONCLUSION: ${{ steps.wait-for-remote-workflow.outputs.conclusion }}
+        run: |
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '### Remote Workflow Results' >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo "URL: [${{ env.URL }}](${{ env.URL }})" >> $GITHUB_STEP_SUMMARY
+
+          status_icon=':x:'
+          if [ "${STATUS}" = 'completed' ]; then
+            status_icon=':white_check_mark:'
+          fi
+
+          conclusion_icon=':x:'
+          if [ "${CONCLUSION}" = 'success' ]; then
+            conclusion_icon=':white_check_mark:'
+          fi
+
+          echo "Status: ${STATUS} ${status_icon}" >> $GITHUB_STEP_SUMMARY
+          echo "Conclusion: ${CONCLUSION} ${conclusion_icon}" >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
