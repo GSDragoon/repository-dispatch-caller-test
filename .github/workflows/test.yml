@@ -68,8 +68,8 @@ jobs:
             created_at=$(echo "${latest_run}" | jq -r '.created_at')
             run_attempt=$(echo "${latest_run}" | jq -r '.run_attempt')
 
-            echo "Latest run [${id}]: ${html_url}"
-            echo " Run Number: ${run_number}, Status: ${status}, Conclusion: ${conclusion}, Created At: ${created_at}, Run Attempt: ${run_attempt}"
+            echo "Latest run [#${run_number}]: ${html_url}"
+            echo " Status: ${status}, Conclusion: ${conclusion}, Started At: ${created_at}, Run Attempt: ${run_attempt}"
 
             # Set step outputs to display in the GitHub Summary
             echo "url=${html_url}" >> "$GITHUB_OUTPUT"
