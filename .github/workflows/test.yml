@@ -101,7 +101,7 @@ jobs:
           STATUS: ${{ steps.wait-for-remote-workflow.outputs.status }}
           CONCLUSION: ${{ steps.wait-for-remote-workflow.outputs.conclusion }}
         run: |
-          echo 'Publishing results to Job's Summary...'
+          echo 'Publishing results to Job Summary...'
           echo '### Remote Workflow Results' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
           echo "URL: [${URL}](${URL})" >> $GITHUB_STEP_SUMMARY
@@ -118,4 +118,4 @@ jobs:
 
           echo "Status: ${STATUS} ${status_icon}" >> $GITHUB_STEP_SUMMARY
           echo "Conclusion: ${CONCLUSION} ${conclusion_icon}" >> $GITHUB_STEP_SUMMARY
-          echo 'Done. Check the Job's Summary for the remote workflow results.'
+          echo 'Done. Check the Job Summary for the remote workflow results.'
