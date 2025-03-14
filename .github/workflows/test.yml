@@ -104,7 +104,7 @@ jobs:
           echo 'Publishing results to Job's Summary...'
           echo '### Remote Workflow Results' >> $GITHUB_STEP_SUMMARY
           echo '' >> $GITHUB_STEP_SUMMARY
-          echo "URL: [${{ env.URL }}](${{ env.URL }})" >> $GITHUB_STEP_SUMMARY
+          echo "URL: [${URL}](${URL})" >> $GITHUB_STEP_SUMMARY
 
           status_icon=':x:'
           if [ "${STATUS}" = 'completed' ]; then
