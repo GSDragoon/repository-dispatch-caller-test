@@ -118,5 +118,4 @@ jobs:
 
           echo "Status: ${STATUS} ${status_icon}" >> $GITHUB_STEP_SUMMARY
           echo "Conclusion: ${CONCLUSION} ${conclusion_icon}" >> $GITHUB_STEP_SUMMARY
-          echo '' >> $
           echo 'Done. Check the Job's Summary for the remote workflow results.'
