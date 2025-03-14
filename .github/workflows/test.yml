@@ -60,12 +60,15 @@ jobs:
       - name: Wait for Remote Workflow to Complete
         id: wait-for-remote-workflow
         timeout-minutes: 5
-        env:
-          # Because we are using the same workflow here to simulate from multiple repos
-          WORKFLOW_ID: if (inputs.event_type == 'test-type-1') then ${{ env.WORKFLOW_1_ID }} else ${{ env.WORKFLOW_2_ID }} end
         run: |
           echo 'Waiting 30 seconds before polling workflow runs...'
           sleep 30
+
+          # Because we are using the same workflow here to simulate from multiple repos/events
+          workflow_id=$WORKFLOW_1_ID
+          if ['${{ inputs.event_type }}' = 'test-type-2']; then
+            workflow_id=$WORKFLOW_2_ID
+          fi
 
           while true; do
             response=$(curl -L \
@@ -78,7 +81,7 @@ jobs:
 
             # Get the latest run, don't assume the api returns the runs in order and go off the run number
             # Filter only on specific workflows, by ID, because the repo will run other workflows too
-            latest_run=$(echo "${response}" | jq '.workflow_runs | map(select(.workflow_id == ${{ env.WORKFLOW_ID }})) | max_by(.run_number)')
+            latest_run=$(echo "${response}" | jq ".workflow_runs | map(select(.workflow_id == ${workflow_id})) | max_by(.run_number)")
 
             id=$(echo "${latest_run}" | jq -r '.id')
             run_number=$(echo "${latest_run}" | jq -r '.run_number')
